@@ -1,4 +1,8 @@
 import flet as ft
+from flet.core import icon_button
+from flet.core.elevated_button import ElevatedButton
+from flet.core.theme import IconButtonTheme
+
 from alert import AlertManager
 from deposito_strumenti import DepositoStrumenti
 
@@ -36,7 +40,10 @@ def main(page: ft.Page):
     lista_strumenti = ft.ListView(expand=True, spacing=5, padding=10, auto_scroll=True)
 
     # Tutti i TextField per le info necessarie per aggiungere un nuovo strumento (tipo, marca, anno, contatore posti)
-    # TODO
+    txt_tipo=ft.TextField(label="Tipo")
+    txt_marca = ft.TextField(label="Marca")
+    txt_anno = ft.TextField(label="Anno")
+    txt_valore= ft.Text(value="0.0")
 
     # --- FUNZIONI APP ---
     def aggiorna_lista_strumenti():
@@ -58,14 +65,45 @@ def main(page: ft.Page):
         page.update()
 
     # Handlers per la gestione dei pulsanti utili all'inserimento di un nuovo strumento
-    # TODO
+    def aggiungiNuovoStrumento(e):
+        try:
+            tipo = txt_tipo.value
+            marca = txt_marca.value
+            anno = int(txt_anno.value)
+            valore = float(txt_valore.value)
+
+            deposito.aggiungi_strumento(tipo, marca, anno, valore)
+            txt_tipo.value = ""
+            txt_marca.value = ""
+            txt_anno.value = ""
+            txt_valore.value = "0.0"
+            aggiorna_lista_strumenti()
+
+        except ValueError:
+            alert.show_alert("❌ Errore: il valore attuale non è un numero valido.")
+
+    def aumentaValore(e):
+            valore_attuale = float(txt_valore.value)
+            txt_valore.value = str(valore_attuale + 50.0)
+            page.update()
+
+    def diminuisciValore(e):
+            valore_attuale = float(txt_valore.value)
+            if valore_attuale >= 50.0:
+                txt_valore.value = str(valore_attuale - 50.0)
+            else:
+                txt_valore.value = "0.0"
+            page.update()
 
     # --- EVENTI ---
     toggle_cambia_tema = ft.Switch(label="Tema scuro", value=True, on_change=cambia_tema)
     pulsante_conferma_responsabile = ft.ElevatedButton("Conferma", on_click=conferma_responsabile)
 
     # Pulsanti per la gestione dell'inserimento di un nuovo strumento
-    # TODO
+    bottoneAggiungiStrumento=ft.ElevatedButton(text="Aggiungi strumento",on_click=aggiungiNuovoStrumento)
+    bottoneAumentaValore=ft.ElevatedButton(text="+" , on_click=aumentaValore)
+    bottoneDiminuisciValore=ft.ElevatedButton(text="-" , on_click=diminuisciValore)
+
 
     # --- LAYOUT ---
     page.add(
@@ -83,7 +121,10 @@ def main(page: ft.Page):
                alignment=ft.MainAxisAlignment.CENTER),
 
         # Sezione 3
-        # TODO
+        ft.Divider(),
+        ft.Text("Aggiungi nuovo strumento", size=20),
+        ft.Row(controls=[txt_tipo, txt_marca, txt_anno , bottoneDiminuisciValore, txt_valore, bottoneAumentaValore, bottoneAggiungiStrumento]
+               , alignment=ft.MainAxisAlignment.CENTER),
 
         # Sezione 4
         ft.Divider(),
